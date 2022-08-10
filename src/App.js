@@ -1,138 +1,69 @@
 import React from 'react';
+import NumKeys from './components/NumKeys';
+import OperationKeys from './components/OperationKeys';
+import {
+  ACTIONS,
+  FORMAT_INTEGER,
+  reducer,
+  evaluate,
+  formatOperand,
+} from './components/Actions';
+
+import { useReducer } from 'react';
 import './App.css';
 
 function App() {
+  const [{ currentOperand, previousOperand, operation }, dispatch] = useReducer(
+    reducer,
+    {}
+  );
+
   return (
     <>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        version="1.1"
-        // xmlns:xlink="http://www.w3.org/1999/xlink"
-        viewBox="0 0 40 40"
-        display="none"
-        width="0"
-        height="0"
-      >
-        <symbol id="icon-a4d" viewBox="0 0 40 40">
-          <path d="M32.4,34.7c-0.3,0.3-0.7,0.5-1.1,0.5H9.1c-0.4,0-0.8-0.2-1.1-0.5c-0.3-0.3-0.5-0.7-0.5-1.1V6.4 C7.5,6,7.7,5.6,8,5.3C8.3,5,8.7,4.8,9.1,4.8h13.3l-0.1,9.3c0,0.4,0.2,0.8,0.5,1.1c0.3,0.3,0.7,0.5,1.1,0.5h9v17.9 C32.9,34,32.7,34.4,32.4,34.7z M14.4,23.5c0.3-0.5,0.8-0.8,1.4-0.8c0.3,0,0.5,0.1,0.7,0.2c0.2,0.1,0.4,0.3,0.6,0.5 c0.1,0.1,0.2,0.3,0.3,0.6l2.4-0.6c-0.3-1-0.8-1.7-1.4-2.1c-0.6-0.5-1.5-0.7-2.6-0.7c-1.4,0-2.5,0.4-3.2,1.2c-0.8,0.8-1.1,2-1.1,3.5 c0,1.1,0.2,2.1,0.7,2.8c0.4,0.7,1,1.2,1.5,1.5c0.6,0.3,1.4,0.4,2.3,0.4c0.8,0,1.4-0.1,1.9-0.4c0.5-0.2,0.9-0.6,1.3-1.1 c0.3-0.5,0.6-1,0.7-1.7l-2.4-0.7c-0.1,0.6-0.3,1-0.6,1.3c-0.3,0.3-0.7,0.5-1.2,0.5c-0.5,0-0.9-0.2-1.2-0.6C14.2,27,14,26.4,14,25.3 C14,24.5,14.2,23.9,14.4,23.5z M26.9,20.8L25,27.4l-2-6.6h-2.8l3.3,9.1h2.9l3.2-9.1H26.9z M24.5,5.5c0.2,0.2,0.4,0.3,0.6,0.5 l6.8,6.9c0.2,0.2,0.3,0.4,0.5,0.6l-7.9-0.1V5.5z" />
-        </symbol>
-        <symbol id="icon-901" viewBox="0 0 40 40">
-          <path d="M34.9,30.5V15.6c-0.4,0.4-0.8,0.9-1.4,1.2c-3.4,2.7-6.2,4.8-8.2,6.6c-0.6,0.5-1.1,0.9-1.6,1.2c-0.4,0.3-0.9,0.6-1.7,0.9 c-0.7,0.3-1.4,0.5-2,0.5l0,0c-0.6,0-1.2-0.2-2-0.5c-0.7-0.3-1.2-0.6-1.7-0.9c-0.4-0.3-0.9-0.7-1.6-1.2c-2.1-1.7-4.8-3.8-8.2-6.6 c-0.5-0.4-0.9-0.8-1.4-1.2v14.9c0,0.2,0.1,0.3,0.2,0.4C5.7,31,5.9,31.1,6,31.1h28.4c0.2,0,0.3-0.1,0.4-0.2 C34.8,30.8,34.9,30.7,34.9,30.5L34.9,30.5z M34.9,10.2V9.7c0,0,0-0.1,0-0.2c0-0.1,0-0.2-0.1-0.2c-0.1,0-0.1,0-0.1-0.2 c0-0.1-0.1-0.2-0.2-0.1c-0.1,0-0.2,0-0.3,0H5.8C5.6,8.9,5.4,9,5.3,9.1C5.2,9.2,5.1,9.3,5.1,9.5c0,2.2,0.9,4,2.8,5.5 c2.5,2,5.1,4,7.7,6.1c0.1,0.1,0.3,0.2,0.7,0.5c0.4,0.3,0.6,0.5,0.9,0.7c0.2,0.2,0.5,0.4,0.8,0.6c0.3,0.2,0.7,0.4,0.9,0.5 c0.3,0.1,0.6,0.2,0.8,0.2l0,0c0.2,0,0.5-0.1,0.8-0.2c0.3-0.1,0.6-0.3,0.9-0.5c0.3-0.2,0.6-0.4,0.8-0.6c0.2-0.2,0.5-0.4,0.9-0.7 c0.4-0.3,0.6-0.5,0.6-0.5c2.7-2.1,5.3-4.2,7.7-6.1c0.7-0.5,1.4-1.2,2-2.2C34.6,11.8,34.9,11,34.9,10.2L34.9,10.2z M37.3,9.5v21 c0,0.8-0.3,1.6-0.9,2.2s-1.4,0.9-2.2,0.9H5.8c-0.8,0-1.6-0.3-2.2-0.9c-0.6-0.6-0.9-1.4-0.9-2.2v-21c0-0.8,0.3-1.6,0.9-2.2 s1.4-0.9,2.2-0.9h28.4c0.8,0,1.6,0.3,2.2,0.9S37.3,8.7,37.3,9.5z" />
-        </symbol>
-        <symbol id="icon-b47" viewBox="0 0 40 40">
-          <path d="M39.7,20.4c-2.5,3.7-4.9,7.5-7.4,11.2c-0.1,0.2-0.3,0.4-0.5,0.6c-0.5,0.5-1.2,0.8-1.8,0.9 c-0.7,0.2-1.3,0.1-2,0.1c-0.1,0-0.2,0-0.3,0c-7.4,0-14.9,0-22.3,0c-0.1,0-0.2,0-0.2,0c-0.1,0-0.3,0-0.4-0.1 c-0.8-0.2-1.1-0.8-0.6-1.5c2.5-3.8,5-7.6,7.5-11.4c0.4-0.7,1-1.3,1.9-1.4c0.5-0.1,1.1-0.2,1.6-0.2c5.6,0,11.1,0,16.7,0 c1.3,0,2.7,0,4,0c1,0,2,0,2.9,0c0.7,0,1.1,0.3,1.3,0.9c0,0,0,0.1,0,0.1C39.9,19.9,39.8,20.2,39.7,20.4z M31.2,16.9 c-0.1,0-0.2,0-0.3,0c-5.6,0-11.1,0-16.7,0c-0.4,0-0.9,0.1-1.3,0.2c-0.9,0.3-1.8,0.7-2.3,1.6c-2.1,3.2-4.2,6.4-6.3,9.5 c-0.4,0.6-0.8,1.2-1.2,1.9c0-0.1,0-0.2,0-0.3c0-3,0-5.9,0-8.9C3,17,3,13,3,9.1C3,8,3.6,7.2,4.6,6.8c0.1,0,0.3-0.1,0.4-0.1 c3.3,0,6.6,0,9.9,0c0,0,0,0,0.1,0c1.3,0.3,1.9,1.1,1.9,2.4c0,0.8,0,1.5,0,2.3c0,0.1,0,0.2,0,0.2c0.1,0,0.2,0,0.3,0 c3.8,0,7.7,0,11.5,0c1.4,0,2.4,1,2.4,2.4c0,0.9,0,1.7,0,2.6C31.2,16.8,31.2,16.8,31.2,16.9z" />
-        </symbol>
-        <symbol id="icon-907" viewBox="0 0 40 40">
-          <path d="M36,20.3c0,3.5-1,6.6-3.1,9.4c-2,2.8-4.7,4.7-7.9,5.8c-0.4,0.1-0.6,0-0.8-0.1c-0.2-0.2-0.3-0.4-0.3-0.6v-4.4 c0-1.3-0.4-2.3-1.1-3c0.8-0.1,1.5-0.2,2.1-0.4c0.6-0.2,1.3-0.4,2-0.8c0.7-0.4,1.2-0.8,1.7-1.4c0.5-0.5,0.8-1.3,1.1-2.2 s0.4-2,0.4-3.1c0-1.7-0.5-3.1-1.6-4.3c0.5-1.3,0.5-2.7-0.2-4.2c-0.4-0.1-1,0-1.7,0.2c-0.7,0.3-1.4,0.6-1.9,0.9L24,12.5 c-1.3-0.4-2.6-0.5-4-0.5s-2.7,0.2-4,0.5c-0.2-0.2-0.5-0.3-0.9-0.6c-0.4-0.2-0.9-0.5-1.7-0.8c-0.8-0.3-1.4-0.4-1.8-0.3 c-0.6,1.6-0.7,3-0.1,4.2c-1.1,1.2-1.6,2.6-1.6,4.3c0,1.2,0.1,2.2,0.4,3.1s0.6,1.6,1.1,2.2s1,1,1.7,1.4c0.7,0.4,1.3,0.6,2,0.8 c0.6,0.2,1.3,0.3,2.1,0.4c-0.6,0.5-0.9,1.2-1,2.1c-0.3,0.1-0.6,0.2-0.9,0.3c-0.3,0.1-0.7,0.1-1.2,0.1c-0.5,0-0.9-0.1-1.4-0.4 c-0.5-0.3-0.8-0.7-1.2-1.3c-0.3-0.4-0.6-0.8-1-1.1c-0.4-0.3-0.8-0.4-1-0.5L9,26.5c-0.3,0-0.5,0-0.6,0.1c-0.1,0.1-0.1,0.1-0.1,0.2 c0,0.1,0.1,0.2,0.2,0.3c0.1,0.1,0.2,0.2,0.3,0.2l0.1,0.1c0.3,0.1,0.6,0.4,0.9,0.8s0.5,0.7,0.7,1.1l0.2,0.5c0.2,0.5,0.5,1,0.9,1.3 c0.4,0.3,0.9,0.5,1.4,0.6c0.5,0.1,1,0.1,1.4,0.1c0.5,0,0.9,0,1.2-0.1l0.5-0.1c0,0.5,0,1.1,0,1.9c0,0.7,0,1.1,0,1.1 c0,0.2-0.1,0.5-0.3,0.6c-0.2,0.2-0.5,0.2-0.8,0.1c-3.2-1.1-5.8-3-7.9-5.8S4,23.8,4,20.3c0-2.9,0.7-5.6,2.1-8S9.5,7.8,12,6.4 s5.1-2.1,8-2.1s5.6,0.7,8,2.1s4.4,3.4,5.8,5.8S36,17.4,36,20.3L36,20.3z" />
-        </symbol>
-        <symbol id="icon-90b" viewBox="0 0 40 40">
-          <path d="M12.1,13.8v19.1H5.7V13.8C5.7,13.8,12.1,13.8,12.1,13.8z M12.5,7.9c0,0.9-0.3,1.7-1,2.4c-0.7,0.6-1.5,0.9-2.6,0.9h0 c-1.1,0-1.9-0.3-2.5-0.9c-0.6-0.6-1-1.4-1-2.4c0-1,0.3-1.7,1-2.4S7.9,4.6,9,4.6s1.9,0.3,2.6,0.9S12.5,6.9,12.5,7.9z M35,22v11h-6.4 V22.7c0-1.4-0.3-2.4-0.8-3.2c-0.5-0.8-1.3-1.1-2.4-1.1c-0.8,0-1.5,0.2-2,0.7c-0.5,0.4-1,1-1.2,1.7c-0.1,0.4-0.2,0.9-0.2,1.6v10.7 h-6.4c0-5.1,0-9.3,0-12.5s0-5.1,0-5.7l0-0.9H22v2.8h0c0.3-0.4,0.5-0.8,0.8-1.1c0.3-0.3,0.6-0.6,1.1-1c0.5-0.4,1-0.6,1.7-0.8 c0.7-0.2,1.4-0.3,2.2-0.3c2.2,0,4,0.7,5.3,2.2C34.4,17,35,19.1,35,22L35,22z" />
-        </symbol>
-        <symbol id="icon-92f" viewBox="0 0 40 40">
-          <path d="M20,13.9v8.4h-2.8v-8.4H20z M27.7,13.9v8.4h-2.8v-8.4H27.7z M27.7,28.5l4.9-4.9V8.3h-23v20.2h6.3v4.2l4.2-4.2 C20,28.5,27.7,28.5,27.7,28.5z M35.4,5.5v19.6l-8.4,8.4h-6.3l-4.2,4.2h-4.2v-4.2H4.6V11.1l2.1-5.6H35.4L35.4,5.5z" />
-        </symbol>
-        <symbol id="icon-905" viewBox="0 0 40 40">
-          <path d="M36.3,10.2c-1,1.3-2.1,2.5-3.4,3.5c0,0.2,0,0.4,0,1c0,1.7-0.2,3.6-0.9,5.3c-0.6,1.7-1.2,3.5-2.4,5.1 c-1.1,1.5-2.3,3.1-3.7,4.3c-1.4,1.2-3.3,2.3-5.3,3c-2.1,0.8-4.2,1.2-6.6,1.2c-3.6,0-7-1-10.2-3c0.4,0,1.1,0.1,1.5,0.1 c3.1,0,5.9-1,8.2-2.9c-1.4,0-2.7-0.4-3.8-1.3c-1.2-1-1.9-2-2.2-3.3c0.4,0.1,1,0.1,1.2,0.1c0.6,0,1.2-0.1,1.7-0.2 c-1.4-0.3-2.7-1.1-3.7-2.3s-1.4-2.6-1.4-4.2v-0.1c1,0.6,2,0.9,3,0.9c-1-0.6-1.5-1.3-2.2-2.4c-0.6-1-0.9-2.1-0.9-3.3s0.3-2.3,1-3.4 c1.5,2.1,3.6,3.6,6,4.9s4.9,2,7.6,2.1c-0.1-0.6-0.1-1.1-0.1-1.4c0-1.8,0.8-3.5,2-4.7c1.2-1.2,2.9-2,4.7-2c2,0,3.6,0.8,4.8,2.1 c1.4-0.3,2.9-0.9,4.2-1.5c-0.4,1.5-1.4,2.7-2.9,3.6C33.8,11.2,35.1,10.9,36.3,10.2L36.3,10.2z" />
-        </symbol>
-      </svg>
-      )(
-      <div id="wrapper">
-        <div id="main">
-          <div className="inner">
-            <div id="container01" className="container columns full">
-              <div className="wrapper">
-                <div className="inner">
-                  <div>
-                    <h1 id="text01">ARNOLD</h1>
-                    <p id="text06">
-                      cpa accountant turned full stack web dev living in the bay
-                      with my chow chow
-                    </p>
-                    <ul id="buttons01" className="buttons">
-                      <li>
-                        <a href="#works" className="button n01">
-                          <svg>
-                            <use xlink:href="#icon-b47"></use>
-                          </svg>
-                          <span className="label">Works</span>
-                        </a>
-                      </li>
-                    </ul>
-                    <ul id="icons01" className="icons">
-                      <li>
-                        <a
-                          className="n01"
-                          href="https://www.github.com/arnoldsouth"
-                        >
-                          <svg>
-                            <use xlink:href="#icon-907"></use>
-                          </svg>
-                          <span className="label">GitHub</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          className="n02"
-                          href="https://www.linkedin.com/in/arnoldsouth"
-                        >
-                          <svg>
-                            <use xlink:href="#icon-90b"></use>
-                          </svg>
-                          <span className="label">LinkedIn</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          className="n03"
-                          href="https://www.twitter.com/arnoldj_eth"
-                        >
-                          <svg>{/* <use xlink:href="#icon-905"></use> */}</svg>
-                          <span className="label">Twitter</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a className="n04" href="https://www.twitch.com/ajawp">
-                          <svg>{/* <use xlink:href="#icon-92f"></use> */}</svg>
-                          <span className="label">Twitch</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a
-                          className="n05"
-                          href="https://docs.google.com/document/d/1UXpZQqikA8QX5kw-DS8WyAGVdN3wi6ts/edit?usp=sharing&ouid=104290255129280048353&rtpof=true&sd=true"
-                        >
-                          <svg>
-                            <use xlink:href="#icon-a4d"></use>
-                          </svg>
-                          <span className="label">CV</span>
-                        </a>
-                      </li>
-                      <li>
-                        <a className="n06" href="mailto:arnold@arnold.rip">
-                          <svg>
-                            <use xlink:href="#icon-901"></use>
-                          </svg>
-                          <span className="label">Email (Alt)</span>
-                        </a>
-                      </li>
-                    </ul>
-                  </div>
-                  <div>
-                    <div id="image" className="image" data-position="center">
-                      <span className="frame deferred">
-                        <img
-                          src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHg9IjAiIHk9IjAiIHZpZXdCb3g9IjAgMCAxMDE5IDEyOTciIHdpZHRoPSIxMDE5IiBoZWlnaHQ9IjEyOTciIHByZXNlcnZlQXNwZWN0UmF0aW89Im5vbmUiPjxyZWN0IGZpbGw9IiM2NDQ3MzciIHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiLz48L3N2Zz4%3D"
-                          data-src="assets/images/image.jpg"
-                          alt="about-photo"
-                        />
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
+      <div className="calculator-grid">
+        <div className="output">
+          <div className="previous-operand">
+            {formatOperand(previousOperand)} {operation}
           </div>
+          <div className="current-operand">{formatOperand(currentOperand)}</div>
         </div>
+
+        <button
+          className="span-two"
+          onClick={() => dispatch({ type: ACTIONS.CLEAR })}
+        >
+          AC
+        </button>
+
+        <button onClick={() => dispatch({ type: ACTIONS.DELETE_DIGIT })}>
+          DEL
+        </button>
+        <OperationKeys operation="÷" dispatch={dispatch} />
+
+        <NumKeys digit="7" dispatch={dispatch} />
+        <NumKeys digit="8" dispatch={dispatch} />
+        <NumKeys digit="9" dispatch={dispatch} />
+
+        <OperationKeys operation="*" dispatch={dispatch} />
+        <NumKeys digit="4" dispatch={dispatch} />
+        <NumKeys digit="5" dispatch={dispatch} />
+        <NumKeys digit="6" dispatch={dispatch} />
+
+        <OperationKeys operation="-" dispatch={dispatch} />
+        <NumKeys digit="1" dispatch={dispatch} />
+        <NumKeys digit="2" dispatch={dispatch} />
+        <NumKeys digit="3" dispatch={dispatch} />
+
+        <OperationKeys operation="+" dispatch={dispatch} />
+        <NumKeys digit="0" dispatch={dispatch} />
+        <NumKeys digit="." dispatch={dispatch} />
+
+        <button
+          className="span-two"
+          onClick={() => dispatch({ type: ACTIONS.EVALUATE })}
+        >
+          =
+        </button>
       </div>
     </>
   );
